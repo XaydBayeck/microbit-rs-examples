@@ -4,7 +4,7 @@
 
 use cortex_m_rt::entry;
 use microbit::display::blocking::Display;
-use microbit::hal::{prelude::*, Timer};
+use microbit::hal::Timer;
 use microbit::Board;
 use panic_halt as _;
 
