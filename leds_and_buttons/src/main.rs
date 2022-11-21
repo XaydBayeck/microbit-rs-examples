@@ -3,27 +3,27 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use microbit::display::blocking::Display;
-use microbit::hal::{prelude::*, Timer};
-use microbit::Board;
-use panic_halt as _;
+
+use microbit::{
+    hal::{prelude::*, saadc::SaadcConfig, Saadc},
+    Board,
+};
+use panic_rtt_target as _;
+use rtt_target::{rprintln, rtt_init_print};
 
 #[entry]
 fn main() -> ! {
-    let board = Board::take().unwrap();
-    let mut timer = Timer::new(board.TIMER0);
-    let mut display = Display::new(board.display_pins);
+    rtt_init_print!();
 
-    let heart = [
-        [0, 1, 0, 1, 0],
-        [1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 0],
-        [0, 0, 1, 0, 0],
-    ];
+    let board = Board::take().unwrap();
+
+    let mut column1 = board.display_pins.col1.into_floating_input();
+
+    let saadc_config = SaadcConfig::default();
+    let mut saadc = Saadc::new(board.SAADC, saadc_config);
 
     loop {
-        display.show(&mut timer, heart, 1000);
-        display.clear();
+        let result = saadc.read(&mut column1).unwrap();
+        rprintln!("Light strength: {}", result);
     }
 }
